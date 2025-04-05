@@ -4,12 +4,21 @@ services:
     build:
       context: ..
       dockerfile: dockerfile
+    ports:
+      - ${API_PORT}:${API_PORT}
     environment:
       DB_USERNAME: ${DB_USERNAME}
       DB_PASSWORD: ${DB_PASSWORD}
       DB_HOST: ${DB_HOSTNAME}
       DB_PORT: ${DB_PORT}
       DB_NAME: ${DB_NAME}
+      API_PORT: ${API_PORT}
+      VERSION_PREFIX: ${VERSION_PREFIX}
+      LOG_LEVEL: ${LOG_LEVEL}
+    networks:
+      default:
+        aliases:
+          - ${API_HOSTNAME}
 
   db:
     image: mysql:9.2.0

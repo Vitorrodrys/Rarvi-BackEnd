@@ -1,6 +1,14 @@
+import enum
+
 from pydantic_settings import BaseSettings
 from pydantic import Field, MySQLDsn
 
+class LogLevelsEnum(enum.StrEnum):
+    FATAL = "FATAL"
+    ERROR = "ERROR"
+    WARN = "WARN"
+    INFO = "INFO"
+    DEBUG = "DEBUG"
 
 class DataBaseConfig(BaseSettings):
     scheme: str = Field("mysql+pymysql", alias="DB_SCHEME")
@@ -11,8 +19,9 @@ class DataBaseConfig(BaseSettings):
     path: str = Field(alias="DB_NAME")
 
 class Settings(BaseSettings):
-    DATABASE_URL: MySQLDsn = MySQLDsn.build(**BaseSettings().model_dump())
+    DATABASE_URL: MySQLDsn = MySQLDsn.build(**DataBaseConfig().model_dump())
     VERSION_PREFIX: str
+    LOG_LEVEL: LogLevelsEnum
 
 
 _settings = None
