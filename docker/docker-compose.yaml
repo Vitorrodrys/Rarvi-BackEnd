@@ -1,0 +1,32 @@
+services:
+
+  api:
+    build:
+      context: ..
+      dockerfile: dockerfile
+    environment:
+      DB_USERNAME: ${DB_USERNAME}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_HOST: ${DB_HOSTNAME}
+      DB_PORT: ${DB_PORT}
+      DB_NAME: ${DB_NAME}
+
+  db:
+    image: mysql:9.2.0
+    environment:
+      MYSQL_DATABASE: ${DB_NAME}
+      MYSQL_USER: ${DB_USERNAME}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+    networks:
+      default:
+        aliases:
+          - ${DB_HOSTNAME}
+    volumes:
+      - db_data:/var/lib/mysql
+
+
+volumes:
+  db_data:
+
+
