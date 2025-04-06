@@ -33,13 +33,13 @@ class CRUDBase(Generic[ModelVar, CreateSchemaVar, UpdateSchemaVar]):
         db_session.refresh(db_obj)
         return db_obj
 
-    def delete(self, db_session: Session, id: int) -> ModelVar:
-        db_obj = db_session.query(self._model).get(id)
+    def delete(self, db_session: Session, ident: int) -> ModelVar:
+        db_obj = db_session.get(self._model, ident)
         if db_obj:
             db_session.delete(db_obj)
             db_session.commit()
         return db_obj
 
-    def get(self, db_session: Session, id: int) -> ModelVar:
-        db_obj = db_session.query(self._model).get(id)
+    def get(self, db_session: Session, ident: int) -> ModelVar:
+        db_obj = db_session.get(self._model, ident)
         return db_obj
