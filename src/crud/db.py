@@ -8,7 +8,10 @@ from core import settings
 
 
 _engine = create_engine(str(settings.get().DATABASE_URL))
-SessionLocal = sessionmaker(bind=_engine, autocommit=False, autoflush=False, class_=Session)
+SessionLocal = sessionmaker(
+    bind=_engine, autocommit=False, autoflush=False, class_=Session
+)
+
 
 def create_all(base_class: Type[DeclarativeBase]):
     """

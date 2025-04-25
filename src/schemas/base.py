@@ -1,12 +1,12 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 
 
 class BaseSchema(BaseModel):
-    pass
+    model_config = ConfigDict(from_attributes=True)
 
 class BaseCreateSchema(BaseModel):
     pass
 
 class BaseUpdateSchema(BaseModel):
-    id: int
+    pass

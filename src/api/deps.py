@@ -1,8 +1,5 @@
 from crud.db import SessionLocal
 
 def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
+    with SessionLocal() as session:
+        yield session
