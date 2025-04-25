@@ -12,4 +12,3 @@ env_settings = settings.get()
 
 app = FastAPI()
 app.include_router(api_router, prefix=env_settings.VERSION_PREFIX)
-

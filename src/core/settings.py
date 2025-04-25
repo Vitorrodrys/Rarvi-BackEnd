@@ -14,7 +14,7 @@ class DataBaseConfig(BaseSettings):
     scheme: str = Field("mysql+pymysql", alias="DB_SCHEME")
     username: str = Field(alias="DB_USERNAME")
     password: str = Field(alias="DB_PASSWORD")
-    host: str = Field(alias="DB_HOST")
+    host: str = Field(alias="DB_HOSTNAME")
     port: int = Field(alias="DB_PORT")
     path: str = Field(alias="DB_NAME")
 
