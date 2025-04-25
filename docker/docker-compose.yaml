@@ -1,0 +1,40 @@
+services:
+
+  api:
+    build:
+      context: ..
+      dockerfile: dockerfile
+    ports:
+      - ${API_PORT}:${API_PORT}
+    env_file: test.env
+    networks:
+      default:
+        aliases:
+          - ${API_HOSTNAME}
+    depends_on:
+      db:
+        condition: service_healthy
+
+  db:
+    image: mysql:9.2.0
+    environment:
+      MYSQL_DATABASE: ${DB_NAME}
+      MYSQL_USER: ${DB_USERNAME}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+    networks:
+      default:
+        aliases:
+          - ${DB_HOSTNAME}
+    healthcheck:
+        test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost"]
+        timeout: 20s
+        retries: 10
+    volumes:
+      - db_data:/var/lib/mysql
+
+
+volumes:
+  db_data:
+
+
