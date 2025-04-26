@@ -77,7 +77,7 @@ class JWTHandler:
         try:
             token_json = base64.urlsafe_b64decode(jwt.encode()).decode()
             return JWTAuthSchema.model_validate_json(token_json)
-        except (binascii.Error, ValidationError) as e:
+        except (binascii.Error, ValidationError, UnicodeDecodeError) as e:
             raise JWTInvalidTokenException(None, JWTErrorEnum.BROKEN) from e
 
     @classmethod
