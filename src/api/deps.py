@@ -21,7 +21,7 @@ def _handle_jwt_error(jwt_exception: jwt_handler.JWTInvalidTokenException) -> No
         case _:
             raise HTTPException(status_code=500, detail="Internal server error")
 
-def get_auth_token(credentials: HTTPAuthorizationCredentials = Header(HTTPBearer()), db_session:Session = Depends(get_db)) -> JWTAuthSchema:
+def get_auth_token(credentials: HTTPAuthorizationCredentials = Depends(HTTPBearer()), db_session:Session = Depends(get_db)) -> JWTAuthSchema:
     token = credentials.credentials
     try:
         jwt = jwt_handler.JWTHandler.from_jwt(token)
