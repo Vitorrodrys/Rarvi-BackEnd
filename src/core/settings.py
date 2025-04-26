@@ -1,4 +1,5 @@
 import enum
+import pathlib
 
 from pydantic_settings import BaseSettings
 from pydantic import Field, MySQLDsn
@@ -22,6 +23,9 @@ class Settings(BaseSettings):
     DATABASE_URL: MySQLDsn = MySQLDsn.build(**DataBaseConfig().model_dump())
     VERSION_PREFIX: str
     LOG_LEVEL: LogLevelsEnum
+    CHECKSUM_SALT: str
+    SIGNATURE_KEY_PATH: pathlib.Path
+    JWT_VALID_PERIOD: int
 
 
 _settings = None

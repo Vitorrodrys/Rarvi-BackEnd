@@ -6,6 +6,8 @@ services:
       dockerfile: dockerfile
     ports:
       - ${API_PORT}:${API_PORT}
+    volumes:
+      - ${HOST_SIGNATURE_KEY}:${SIGNATURE_KEY_PATH}
     env_file: test.env
     networks:
       default:

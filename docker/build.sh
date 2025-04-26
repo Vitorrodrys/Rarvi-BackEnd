@@ -36,6 +36,9 @@ done
 
 source $env_file
 
+mkdir -p volume
+openssl rand -out volume/signature.key 32
+export HOST_SIGNATURE_KEY=$(pwd)/volume/signature.key
 docker compose -f docker-compose.yaml -p $project_name --env-file $env_file up --build -d
 
 echo "You can access the Swagger interface at http://localhost:$API_PORT/docs for testing purposes."
