@@ -55,18 +55,18 @@ class UserSchema(BaseSchema):
 class UserAuthSchema(BaseModel):
     name: Optional[str] = None
     email: Optional[str] = None
-    passwrod: str = Field(default=None, exclude=True)
+    password: str = Field(default=None, exclude=True)
 
     @property
     def pass_checksum(self) -> str:
-        return _compute_password_checksum(self.passwrod)
+        return _compute_password_checksum(self.password)
 
 
 class JWTAuthSchema(BaseModel):
     issued_at: datetime = Field(default_factory=datetime.now)
     expires_at: datetime = Field(
         default_factory=lambda: datetime.now()
-        + timedelta(minutes=settings.get().JWT_VALID_PERIOD)
+        + timedelta(hours=settings.get().JWT_VALID_PERIOD)
     )
     user_id: int
     signature: Optional[str] = None

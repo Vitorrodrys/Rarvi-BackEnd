@@ -57,11 +57,11 @@ class JWTHandler:
     def __init__(self, jwt: JWTAuthSchema):
         self.__jwt = jwt
 
-    def __calc_jwt_signature(self, encript_signature: bool = True) -> JWTAuthSchema:
+    def __calc_jwt_signature(self, encrypt_signature: bool = True) -> JWTAuthSchema:
         jwtcp = JWTAuthSchema.model_validate(self.__jwt.model_dump(exclude={"signature"}))
         token_json = jwtcp.model_dump_json(exclude="signature")
         signature = hashlib.sha256(token_json.encode()).hexdigest()
-        if encript_signature:
+        if encrypt_signature:
             sig_key = settings.get().SIGNATURE_KEY_PATH.read_bytes()
             signature = self.__encrypt(signature.encode(), sig_key)
             signature = base64.b64encode(signature).decode()
@@ -87,7 +87,7 @@ class JWTHandler:
     def check(self) -> None:
         if self.__jwt.expires_at < datetime.datetime.now():
             raise JWTInvalidTokenException(self.__jwt, JWTErrorEnum.EXPIRED)
-        jwtcp = self.__calc_jwt_signature(encript_signature=False)
+        jwtcp = self.__calc_jwt_signature(encrypt_signature=False)
         sig_key = settings.get().SIGNATURE_KEY_PATH.read_bytes()
         received_signature = base64.b64decode(self.__jwt.signature.encode())
         try:

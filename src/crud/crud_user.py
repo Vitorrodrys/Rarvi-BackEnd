@@ -27,7 +27,7 @@ class CRUDUser(
         """
         Retrieve a user from the database by their name. If no user is found, return None.
         Args:
-            db_sesison: A pre-established SQLAlchemy ORM session.
+            db_session: A pre-established SQLAlchemy ORM session.
             name: The name of the user you want to retrieve.
         """
         return db_session.query(models.User).filter(models.User.name == name).first()
