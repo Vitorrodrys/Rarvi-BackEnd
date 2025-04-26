@@ -1,13 +1,13 @@
 from typing import Generic, TypeVar
 
+from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
 from models import Base
-from schemas import BaseCreateSchema, BaseUpdateSchema
 
 ModelVar = TypeVar("ModelVar", bound=Base)
-CreateSchemaVar = TypeVar("CreateSchemaVar", bound=BaseCreateSchema)
-UpdateSchemaVar = TypeVar("UpdateSchemaVar", bound=BaseUpdateSchema)
+CreateSchemaVar = TypeVar("CreateSchemaVar", bound=BaseModel)
+UpdateSchemaVar = TypeVar("UpdateSchemaVar", bound=BaseModel)
 
 
 
@@ -43,3 +43,11 @@ class CRUDBase(Generic[ModelVar, CreateSchemaVar, UpdateSchemaVar]):
     def get(self, db_session: Session, ident: int) -> ModelVar:
         db_obj = db_session.get(self._model, ident)
         return db_obj
+
+    def get_multi(
+        self,
+        db_session: Session,
+        skip: int,
+        limit: int
+    ) -> list[ModelVar]:
+        return db_session.query(self._model).offset(skip).limit(limit).all()
