@@ -69,11 +69,15 @@ def update_user(
     Update a user fields by ID.
     """
     if user_id != auth_token.user_id:
-        raise HTTPException(status_code=403, detail="A user can only update his own data")
+        raise HTTPException(
+            status_code=403, detail="A user can only update his own data"
+        )
     db_user = crud.crud_user.get(db_session, user_id)
     if not db_user:
         raise HTTPException(status_code=404, detail="User not found")
-    user_commit = schemas.UserCommitSchema.model_validate(user.model_dump(exclude_unset=True))
+    user_commit = schemas.UserCommitSchema.model_validate(
+        user.model_dump(exclude_unset=True)
+    )
     db_user = crud.crud_user.update(db_session, db_obj=db_user, obj_in=user_commit)
     return db_user
 

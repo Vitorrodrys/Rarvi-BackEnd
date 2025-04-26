@@ -20,13 +20,14 @@ class JWTErrorEnum(StrEnum):
     UNRECOGNIZED = "unrecognized"
     BROKEN = "broken"
 
+
 class JWTInvalidTokenException(Exception):
     def __init__(self, token: JWTAuthSchema, cause: JWTErrorEnum):
         self.token = token
         self.cause = cause
 
-class JWTHandler:
 
+class JWTHandler:
     def __get_cipher(self, key: bytes, iv: bytes) -> Cipher:
         if len(key) not in {16, 24, 32}:
             raise ValueError("Invalid Key")
@@ -58,7 +59,9 @@ class JWTHandler:
         self.__jwt = jwt
 
     def __calc_jwt_signature(self, encrypt_signature: bool = True) -> JWTAuthSchema:
-        jwtcp = JWTAuthSchema.model_validate(self.__jwt.model_dump(exclude={"signature"}))
+        jwtcp = JWTAuthSchema.model_validate(
+            self.__jwt.model_dump(exclude={"signature"})
+        )
         token_json = jwtcp.model_dump_json(exclude="signature")
         signature = hashlib.sha256(token_json.encode()).hexdigest()
         if encrypt_signature:
@@ -96,4 +99,3 @@ class JWTHandler:
             raise JWTInvalidTokenException(self.__jwt, JWTErrorEnum.BROKEN) from e
         if jwtcp.signature != received_signature:
             raise JWTInvalidTokenException(self.__jwt, JWTErrorEnum.UNRECOGNIZED)
-

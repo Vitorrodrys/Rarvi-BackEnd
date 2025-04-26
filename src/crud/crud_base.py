@@ -10,13 +10,8 @@ CreateSchemaVar = TypeVar("CreateSchemaVar", bound=BaseModel)
 UpdateSchemaVar = TypeVar("UpdateSchemaVar", bound=BaseModel)
 
 
-
 class CRUDBase(Generic[ModelVar, CreateSchemaVar, UpdateSchemaVar]):
-
-    def __init__(
-        self,
-        model: ModelVar
-    ):
+    def __init__(self, model: ModelVar):
         self._model = model
 
     def create(self, db_session: Session, obj_in: CreateSchemaVar) -> ModelVar:
@@ -26,7 +21,9 @@ class CRUDBase(Generic[ModelVar, CreateSchemaVar, UpdateSchemaVar]):
         db_session.refresh(db_obj)
         return db_obj
 
-    def update(self, db_session: Session, db_obj: ModelVar, obj_in: UpdateSchemaVar) -> ModelVar:
+    def update(
+        self, db_session: Session, db_obj: ModelVar, obj_in: UpdateSchemaVar
+    ) -> ModelVar:
         for field, value in obj_in.model_dump(exclude_unset=True).items():
             setattr(db_obj, field, value)
         db_session.commit()
@@ -44,10 +41,5 @@ class CRUDBase(Generic[ModelVar, CreateSchemaVar, UpdateSchemaVar]):
         db_obj = db_session.get(self._model, ident)
         return db_obj
 
-    def get_multi(
-        self,
-        db_session: Session,
-        skip: int,
-        limit: int
-    ) -> list[ModelVar]:
+    def get_multi(self, db_session: Session, skip: int, limit: int) -> list[ModelVar]:
         return db_session.query(self._model).offset(skip).limit(limit).all()

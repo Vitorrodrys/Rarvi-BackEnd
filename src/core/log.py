@@ -2,6 +2,7 @@ import logging
 
 from core import settings
 
+
 def init_logging(log_level: settings.LogLevelsEnum = None) -> None:
     env_settings = settings.get()
 

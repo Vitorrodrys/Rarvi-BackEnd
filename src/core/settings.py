@@ -4,12 +4,14 @@ import pathlib
 from pydantic_settings import BaseSettings
 from pydantic import Field, MySQLDsn
 
+
 class LogLevelsEnum(enum.StrEnum):
     FATAL = "FATAL"
     ERROR = "ERROR"
     WARN = "WARN"
     INFO = "INFO"
     DEBUG = "DEBUG"
+
 
 class DataBaseConfig(BaseSettings):
     scheme: str = Field("mysql+pymysql", alias="DB_SCHEME")
@@ -18,6 +20,7 @@ class DataBaseConfig(BaseSettings):
     host: str = Field(alias="DB_HOSTNAME")
     port: int = Field(alias="DB_PORT")
     path: str = Field(alias="DB_NAME")
+
 
 class Settings(BaseSettings):
     DATABASE_URL: MySQLDsn = MySQLDsn.build(**DataBaseConfig().model_dump())
@@ -29,6 +32,7 @@ class Settings(BaseSettings):
 
 
 _settings = None
+
 
 def get() -> Settings:
     global _settings

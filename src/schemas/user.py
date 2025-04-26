@@ -36,7 +36,7 @@ class UserCommitSchema(BaseModel):
 
     @model_validator(mode="after")
     @classmethod
-    def _compute_checksum(cls, values:"UserCommitSchema"):
+    def _compute_checksum(cls, values: "UserCommitSchema"):
         """
         Computes automatically the checksum of the password to be stored in the database.
         """
