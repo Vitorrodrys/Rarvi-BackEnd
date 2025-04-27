@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Body, Depends, HTTPException
+from fastapi import APIRouter, Body, Depends, HTTPException, Request
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError
 
@@ -102,6 +102,7 @@ def delete_user(
 
 @user_router.post("/auth")
 def auth_user(
+    request: Request,
     db_session: Session = Depends(get_db),
     auth_creds: schemas.UserAuthSchema = Body(...),
 ) -> str:
@@ -120,5 +121,7 @@ def auth_user(
     if db_user.pass_checksum != auth_creds.pass_checksum:
         raise HTTPException(status_code=401, detail="Unauthorized")
 
-    jwt_handler = JWTHandler(jwt=JWTHandler.from_model_user(db_user))
+    jwt_handler = JWTHandler(
+        jwt=JWTHandler.from_model_user(db_user, requested_from=request.client.host)
+    )
     return jwt_handler.to_jwt()

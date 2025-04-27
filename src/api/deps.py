@@ -1,4 +1,4 @@
-from fastapi import Depends, HTTPException
+from fastapi import Depends, HTTPException, Request
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from sqlalchemy.orm import Session
 
@@ -25,9 +25,11 @@ def _handle_jwt_error(jwt_exception: jwt_handler.JWTInvalidTokenException) -> No
 
 
 def get_auth_token(
+    request: Request,
     credentials: HTTPAuthorizationCredentials = Depends(HTTPBearer()),
     db_session: Session = Depends(get_db),
 ) -> JWTAuthSchema:
+    client_ip = request.client.host
     token = credentials.credentials
     try:
         jwt = jwt_handler.JWTHandler.from_jwt(token)
@@ -37,6 +39,8 @@ def get_auth_token(
             )
         checker = jwt_handler.JWTHandler(jwt=jwt)
         checker.check()
+        if client_ip != jwt.requested_from:
+            raise HTTPException(status_code=401, detail="IP address mismatch")
         return jwt
     except jwt_handler.JWTInvalidTokenException as e:
         _handle_jwt_error(e)
