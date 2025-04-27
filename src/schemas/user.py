@@ -2,7 +2,7 @@ from datetime import datetime
 import hashlib
 from typing import Optional
 
-from pydantic import model_validator, BaseModel, ConfigDict, Field
+from pydantic import model_validator, BaseModel, ConfigDict, EmailStr, Field
 
 from core import settings
 
@@ -16,13 +16,13 @@ def _compute_password_checksum(password: str) -> str:
 
 class UserCreateSchema(BaseModel):
     name: str
-    email: str
+    email: EmailStr
     password: str
 
 
 class UserUpdateSchema(BaseModel):
     name: Optional[str] = None
-    email: Optional[str] = None
+    email: Optional[EmailStr] = None
     password: Optional[str] = None
 
 
@@ -54,7 +54,7 @@ class UserSchema(BaseSchema):
 
 class UserAuthSchema(BaseModel):
     name: Optional[str] = None
-    email: Optional[str] = None
+    email: Optional[EmailStr] = None
     password: str = Field(default=None, exclude=True)
 
     @property
@@ -67,5 +67,6 @@ class JWTAuthSchema(BaseModel):
     expires_at: datetime = Field(
         default_factory=lambda: datetime.now() + settings.get().JWT_VALID_PERIOD
     )
+    requested_from: str
     user_id: int
     signature: Optional[str] = None
