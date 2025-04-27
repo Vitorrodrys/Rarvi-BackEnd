@@ -1,3 +1,4 @@
+from datetime import timedelta
 import enum
 import pathlib
 
@@ -28,7 +29,7 @@ class Settings(BaseSettings):
     LOG_LEVEL: LogLevelsEnum
     CHECKSUM_SALT: str
     SIGNATURE_KEY_PATH: pathlib.Path
-    JWT_VALID_PERIOD: int
+    JWT_VALID_PERIOD: timedelta
 
 
 _settings = None

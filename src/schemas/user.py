@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import datetime
 import hashlib
 from typing import Optional
 
@@ -65,8 +65,7 @@ class UserAuthSchema(BaseModel):
 class JWTAuthSchema(BaseModel):
     issued_at: datetime = Field(default_factory=datetime.now)
     expires_at: datetime = Field(
-        default_factory=lambda: datetime.now()
-        + timedelta(hours=settings.get().JWT_VALID_PERIOD)
+        default_factory=lambda: datetime.now() + settings.get().JWT_VALID_PERIOD
     )
     user_id: int
     signature: Optional[str] = None
