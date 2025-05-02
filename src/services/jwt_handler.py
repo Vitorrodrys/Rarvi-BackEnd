@@ -84,8 +84,18 @@ class JWTHandler:
             raise JWTInvalidTokenException(None, JWTErrorEnum.BROKEN) from e
 
     @classmethod
-    def from_model_user(cls, user: User) -> "JWTAuthSchema":
-        return JWTAuthSchema(user_id=user.id)
+    def from_model_user(cls, user: User, requested_from: str) -> "JWTAuthSchema":
+        """
+        Creates a JWTAuthSchema instance from a User model.
+
+        Args:
+            user (User): The user model instance.
+            requested_from (str): The source from which the request originated.
+
+        Returns:
+            JWTAuthSchema: A new JWTAuthSchema instance.
+        """
+        return JWTAuthSchema(user_id=user.id, requested_from=requested_from)
 
     def check(self) -> None:
         if self.__jwt.expires_at < datetime.datetime.now():
