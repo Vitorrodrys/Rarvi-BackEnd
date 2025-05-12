@@ -1,3 +1,5 @@
+import re
+
 from fastapi import APIRouter, Body, Depends, HTTPException, Request
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
@@ -51,7 +53,13 @@ def create_user(
     try:
         db_user = crud.crud_user.create(db_session, obj_in=user_commit)
     except IntegrityError as e:
-        raise HTTPException(status_code=400, detail="User with this name or email already exists") from e
+        if re.search(r'Duplicate entry.*email', str(e.orig)):
+            raise HTTPException(
+                status_code=400, detail="User with this email already exists"
+            ) from e
+        raise HTTPException(
+            status_code=400, detail="User with this name already exists"
+        ) from e
     return db_user
 
 
