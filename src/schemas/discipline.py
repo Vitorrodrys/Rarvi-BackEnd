@@ -29,6 +29,7 @@ class DisciplineCommitSchema(BaseModel):
 
 
 class DisciplineSchema(BaseSchema):
+    id: int
     name: str
     red: int
     blue: int
