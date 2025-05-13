@@ -47,3 +47,9 @@ class CardSchema(BaseSchema):
     difficulty: CardDifficultyEnum
     last_viewed_at: datetime
     discipline_id: int
+
+class SummarizedCardSchema(BaseSchema):
+    id: int
+    title: str
+    difficulty: CardDifficultyEnum
+    discipline_id: int

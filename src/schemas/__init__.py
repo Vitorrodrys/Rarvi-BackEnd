@@ -5,6 +5,7 @@ from .card import (
     CardDifficultyEnum,
     CardSchema,
     CardUpdateSchema,
+    SummarizedCardSchema,
 )
 from .discipline import (
     DisciplineSchema,
@@ -31,6 +32,7 @@ __all__ = [
     "CardDifficultyEnum",
     "CardSchema",
     "CardUpdateSchema",
+    "SummarizedCardSchema",
     "DisciplineSchema",
     "DisciplineCommitSchema",
     "DisciplineCreateSchema",

@@ -92,7 +92,7 @@ def get_cards(
     discipline_id: int | None = None,
     from_date: datetime | None = None,
     to_date: datetime | None = None,
-) -> list[schemas.CardSchema]:
+) -> list[schemas.SummarizedCardSchema]:
     """
     Get the cards belonging to a user, optionally filtered by discipline and data range
 
