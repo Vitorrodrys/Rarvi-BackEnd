@@ -33,7 +33,7 @@ def get_auth_token(
     token = credentials.credentials
     try:
         jwt = jwt_handler.JWTHandler.from_jwt(token)
-        if crud.crud_user.get(db_session, jwt.user_id) is None:
+        if crud.user.get(db_session, jwt.user_id) is None:
             raise HTTPException(
                 status_code=401, detail="User associated with token not found"
             )
