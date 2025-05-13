@@ -4,10 +4,11 @@ from fastapi import APIRouter, Body, Depends, HTTPException, Request
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
+from api.deps import get_db, get_auth_token
 import crud
 import schemas
-from api.deps import get_auth_token, get_db
 from services.jwt_handler import JWTHandler
+
 
 user_router = APIRouter()
 
@@ -20,11 +21,7 @@ def get_user(
     """
     Get a user by ID.
     """
-    user = crud.crud_user.get(db_session, auth_session.user_id)
-
-    if not user:
-        raise HTTPException(status_code=404, detail="User not found")
-    return user
+    return crud.user.get(db_session, auth_session.user_id)
 
 
 @user_router.get("/users", response_model=list[schemas.UserSchema])
@@ -37,7 +34,7 @@ def get_users(
     """
     Get a list of users with a Optional skip and limit range.
     """
-    users = crud.crud_user.get_multi(db_session, skip=skip, limit=limit)
+    users = crud.user.get_multi(db_session, skip=skip, limit=limit)
     return users
 
 
@@ -51,9 +48,9 @@ def create_user(
     """
     user_commit = schemas.UserCommitSchema.model_validate(user)
     try:
-        db_user = crud.crud_user.create(db_session, obj_in=user_commit)
+        db_user = crud.user.create(db_session, obj_in=user_commit)
     except IntegrityError as e:
-        if re.search(r'Duplicate entry.*email', str(e.orig)):
+        if re.search(r"Duplicate entry.*email", str(e.orig)):
             raise HTTPException(
                 status_code=400, detail="User with this email already exists"
             ) from e
@@ -72,11 +69,11 @@ def update_user(
     """
     Update a user fields by ID.
     """
-    db_user = crud.crud_user.get(db_session, auth_token.user_id)
-    if not db_user:
-        raise HTTPException(status_code=404, detail="User not found")
-    user_commit = schemas.UserCommitSchema.model_validate(user.model_dump(exclude_unset=True))
-    db_user = crud.crud_user.update(db_session, db_obj=db_user, obj_in=user_commit)
+    db_user = crud.user.get(db_session, auth_token.user_id)
+    user_commit = schemas.UserCommitSchema.model_validate(
+        user.model_dump(exclude_unset=True)
+    )
+    db_user = crud.user.update(db_session, db_obj=db_user, obj_in=user_commit)
     return db_user
 
 
@@ -88,10 +85,7 @@ def delete_user(
     """
     Delete a user by ID.
     """
-    db_user = crud.crud_user.get(db_session, auth_token.user_id)
-    if not db_user:
-        raise HTTPException(status_code=404, detail="User not found")
-    db_user = crud.crud_user.delete(db_session, auth_token.user_id)
+    db_user = crud.user.delete(db_session, auth_token.user_id)
     return db_user
 
 
@@ -106,9 +100,9 @@ def auth_user(
     """
     db_user = None
     if auth_creds.email:
-        db_user = crud.crud_user.get_by_email(db_session, auth_creds.email)
+        db_user = crud.user.get_by_email(db_session, auth_creds.email)
     elif auth_creds.name:
-        db_user = crud.crud_user.get_by_name(db_session, auth_creds.name)
+        db_user = crud.user.get_by_name(db_session, auth_creds.name)
     else:
         raise HTTPException(status_code=400, detail="No email or name provided")
     if not db_user:
@@ -116,5 +110,7 @@ def auth_user(
     if db_user.pass_checksum != auth_creds.pass_checksum:
         raise HTTPException(status_code=401, detail="Unauthorized")
 
-    jwt_handler = JWTHandler(jwt=JWTHandler.from_model_user(db_user, requested_from=request.client.host))
+    jwt_handler = JWTHandler(
+        jwt=JWTHandler.from_model_user(db_user, requested_from=request.client.host)
+    )
     return jwt_handler.to_jwt()
