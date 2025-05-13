@@ -22,24 +22,25 @@ class CardCreateSchema(BaseModel):
 
 
 class CardUpdateSchema(BaseModel):
-    title: Optional[str] = Field(min_length=5, max_digits=100)
-    question: Optional[str] = Field(min_length=10, max_length=1024)
-    answer: Optional[str] = Field(min_length=10, max_length=1024)
-    difficulty: Optional[CardDifficultyEnum]
-    discipline_id: Optional[int]
+    title: Optional[str] = Field(None, min_length=5, max_length=100)
+    question: Optional[str] = Field(None, min_length=10, max_length=1024)
+    answer: Optional[str] = Field(None, min_length=10, max_length=1024)
+    difficulty: Optional[CardDifficultyEnum] = None
+    discipline_id: Optional[int] = None
 
 
 class CardCommitSchema(BaseModel):
     model_config = ConfigDict(from_attributes=True)
-    title: Optional[str]
-    question: Optional[str]
-    answer: Optional[str]
-    difficulty: Optional[str]
-    last_viewed_at: Optional[datetime]
-    discipline_id: Optional[int]
+    title: Optional[str] = None
+    question: Optional[str] = None
+    answer: Optional[str] = None
+    difficulty: Optional[str] = None
+    last_viewed_at: Optional[datetime] = None
+    discipline_id: Optional[int] = None
 
 
 class CardSchema(BaseSchema):
+    id: int
     title: str
     question: str
     answer: str

@@ -11,7 +11,7 @@ import schemas
 card_router = APIRouter()
 
 
-@card_router.get("/card/{card_id}")
+@card_router.get("/card/{card_id}", response_model=schemas.CardSchema)
 def get_card(
     card_id: int,
     auth_session: schemas.JWTAuthSchema = Depends(get_auth_token),
@@ -28,7 +28,7 @@ def get_card(
     return db_card
 
 
-@card_router.put("/card")
+@card_router.post("/card", response_model=schemas.CardSchema)
 def create_card(
     auth_session: schemas.JWTAuthSchema = Depends(get_auth_token),
     db_session: Session = Depends(get_db),
@@ -47,12 +47,12 @@ def create_card(
     return crud.card.create(db_session, card_commit)
 
 
-@card_router.patch("/card/{card_id}")
+@card_router.patch("/card/{card_id}", response_model=schemas.CardSchema)
 def update(
     card_id: int,
     auth_session: schemas.JWTAuthSchema = Depends(get_auth_token),
     db_session: Session = Depends(get_db),
-    card: schemas.UserUpdateSchema = Body(...),
+    card: schemas.CardUpdateSchema = Body(...),
 ) -> schemas.CardSchema:
     db_card = crud.card.get(db_session, card_id)
     if not db_card:
@@ -61,13 +61,13 @@ def update(
         raise HTTPException(
             status_code=403, detail="You cannot update a card that you do not own"
         )
-    card_commit = schemas.CardCommitSchema.model_validate(card)
+    card_commit = schemas.CardCommitSchema(**card.model_dump(exclude_unset=True))
     card_commit.last_viewed_at = datetime.now(timezone.utc)
     db_card = crud.card.update(db_session, db_card, card_commit)
     return db_card
 
 
-@card_router.delete("/card/{card_id}")
+@card_router.delete("/card/{card_id}", response_model=schemas.CardSchema)
 def delete_card(
     card_id: int,
     auth_session: schemas.JWTAuthSchema = Depends(get_auth_token),
@@ -83,7 +83,7 @@ def delete_card(
     return crud.card.delete(db_session, card_id)
 
 
-@card_router.get("/cards")
+@card_router.get("/cards", response_model=list[schemas.CardSchema])
 def get_cards(
     auth_session: schemas.JWTAuthSchema = Depends(get_auth_token),
     db_session: Session = Depends(get_db),
@@ -136,7 +136,7 @@ def get_cards(
         offset=skip,
     )
 
-
+@card_router.get("/count")
 def count_cards(
     auth_session: schemas.JWTAuthSchema = Depends(get_auth_token),
     db_session: Session = Depends(get_db),
@@ -159,6 +159,6 @@ def count_cards(
         db_session,
         auth_session.user_id,
         discipline_id=discipline_id,
-        from_date=from_date,
-        to_date=to_date,
+        from_time=from_date,
+        to_time=to_date,
     )

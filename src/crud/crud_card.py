@@ -16,13 +16,10 @@ class CRUDCard(
         super().__init__(models.Card)
 
     def __basic_stmt(
-        self, db_session: Session, user_id: int, *, discipline_id: Optional[int] = None
+        self, stmt: Query, user_id: int, *, discipline_id: Optional[int] = None
     ) -> Query:
-        stmt = (
-            db_session.query(models.Card, models.User, models.User)
-            .join(models.Discipline)
-            .where(models.Card.discipline_id == models.Discipline.id)
-            .filter(models.Discipline.user_id == user_id)
+        stmt = stmt.join(models.Discipline).where(
+            models.Card.discipline_id == models.Discipline.id
         )
         if discipline_id:
             stmt = stmt.filter(models.Card.discipline_id == discipline_id)
@@ -37,11 +34,12 @@ class CRUDCard(
         limit: Optional[int] = None,
         offset: Optional[int] = None,
     ) -> list[models.Card]:
-        stmt = self.__basic_stmt(db_session, user_id, discipline_id=discipline_id)
+        stmt = db_session.query(models.Card)
+        stmt = self.__basic_stmt(stmt, user_id, discipline_id=discipline_id)
         if offset:
-            stmt.offset(offset)
+            stmt = stmt.offset(offset)
         if limit:
-            stmt.offset(limit)
+            stmt = stmt.limit(limit)
         return stmt.all()
 
     def count(
@@ -53,13 +51,14 @@ class CRUDCard(
         from_time: Optional[datetime] = None,
         to_time: Optional[datetime] = None,
     ) -> int:
-        stmt = self.__basic_stmt(db_session, user_id, discipline_id=discipline_id)
+        stmt = db_session.query(models.Card)
+        stmt = self.__basic_stmt(stmt, user_id, discipline_id=discipline_id)
         if from_time or to_time:
             from_time = from_time or datetime(1970, 1, 1)
             to_time = to_time or (
                 datetime.now(timezone.utc) + timedelta(days=365 * 1000)
             )
-            stmt.filter(models.Card.last_viewed_at.between(from_time, to_time))
+            stmt = stmt.filter(models.Card.last_viewed_at.between(from_time, to_time))
         return stmt.count()
 
     def get_cards_by_period(
@@ -73,7 +72,8 @@ class CRUDCard(
         limit: Optional[int] = None,
         offset: Optional[int] = None,
     ) -> list[models.Card]:
-        stmt = self.__basic_stmt(db_session, user_id, discipline_id=discipline_id)
+        stmt = db_session.query(models.Card)
+        stmt = self.__basic_stmt(stmt, user_id, discipline_id=discipline_id)
         stmt = stmt.filter(models.Card.last_viewed_at.between(from_time, to_time))
         if offset:
             stmt = stmt.offset(offset)
