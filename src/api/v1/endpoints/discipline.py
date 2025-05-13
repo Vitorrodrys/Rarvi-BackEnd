@@ -10,18 +10,20 @@ import schemas
 discipline_router = APIRouter()
 
 
-@discipline_router.get("/disciplines")
+@discipline_router.get("/disciplines", response_model=list[schemas.DisciplineSchema])
 def get_user_disciplines(
     auth_session: schemas.JWTAuthSchema = Depends(get_auth_token),
     db_session: Session = Depends(get_db),
+    skip: int | None = 0,
+    limit: int | None = 10,
 ) -> list[schemas.DisciplineSchema]:
     disciplines = crud.discipline.get_disciplines_by_user(
-        db_session, user_id=auth_session.user_id
+        db_session, auth_session.user_id, offset=skip, limit=limit
     )
     return disciplines
 
 
-@discipline_router.post("/discipline")
+@discipline_router.post("/discipline", response_model=schemas.DisciplineSchema)
 def create_discipline(
     auth_session: schemas.JWTAuthSchema = Depends(get_auth_token),
     db_session: Session = Depends(get_db),
@@ -38,7 +40,9 @@ def create_discipline(
         ) from e
 
 
-@discipline_router.patch("/discipline/{discipline_id}")
+@discipline_router.patch(
+    "/discipline/{discipline_id}", response_model=schemas.DisciplineSchema
+)
 def update_discipline(
     discipline_id: int,
     auth_session: schemas.JWTAuthSchema = Depends(get_auth_token),
@@ -59,7 +63,9 @@ def update_discipline(
         ) from e
 
 
-@discipline_router.delete("/discipline/{discipline_id}")
+@discipline_router.delete(
+    "/discipline/{discipline_id}", response_model=schemas.DisciplineSchema
+)
 def delete_discipline(
     discipline_id: int,
     auth_session: schemas.JWTAuthSchema = Depends(get_auth_token),
