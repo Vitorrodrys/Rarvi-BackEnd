@@ -1,19 +1,26 @@
+from datetime import datetime, timezone
+
 from fastapi import APIRouter, Body, Depends, HTTPException
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
-from api.deps import get_db, get_auth_token
+from api import deps
 import crud
+import models
 import schemas
 
 
 discipline_router = APIRouter()
 
+discipline_ownership_checker = deps.ResourceOwnershipChecker[models.Discipline](
+    crud.discipline.get, lambda x: x.user_id, "discipline"
+)
+
 
 @discipline_router.get("/disciplines", response_model=list[schemas.DisciplineSchema])
 def get_user_disciplines(
-    auth_session: schemas.JWTAuthSchema = Depends(get_auth_token),
-    db_session: Session = Depends(get_db),
+    auth_session: schemas.JWTAuthSchema = Depends(deps.get_auth_token),
+    db_session: Session = Depends(deps.get_db),
     skip: int | None = 0,
     limit: int | None = 10,
 ) -> list[schemas.DisciplineSchema]:
@@ -25,8 +32,8 @@ def get_user_disciplines(
 
 @discipline_router.post("/discipline", response_model=schemas.DisciplineSchema)
 def create_discipline(
-    auth_session: schemas.JWTAuthSchema = Depends(get_auth_token),
-    db_session: Session = Depends(get_db),
+    auth_session: schemas.JWTAuthSchema = Depends(deps.get_auth_token),
+    db_session: Session = Depends(deps.get_db),
     discipline: schemas.DisciplineCreateSchema = Body(...),
 ) -> schemas.DisciplineSchema:
     try:
@@ -45,15 +52,15 @@ def create_discipline(
 )
 def update_discipline(
     discipline_id: int,
-    auth_session: schemas.JWTAuthSchema = Depends(get_auth_token),
-    db_session: Session = Depends(get_db),
+    auth_session: schemas.JWTAuthSchema = Depends(deps.get_auth_token),
+    db_session: Session = Depends(deps.get_db),
     discipline: schemas.DisciplineUpdateSchema = Body(...),
 ) -> schemas.DisciplineSchema:
     db_discipline = crud.discipline.get(db_session, discipline_id)
     if db_discipline.user_id != auth_session.user_id:
         raise HTTPException(
             status_code=403,
-            detail="The user cannot update this discipline because they aren't the owner of it",
+            detail="Unauthorized acess to discipline",
         )
     try:
         crud.discipline.update(db_session, db_obj=db_discipline, obj_in=discipline)
@@ -67,22 +74,32 @@ def update_discipline(
     "/discipline/{discipline_id}", response_model=schemas.DisciplineSchema
 )
 def delete_discipline(
-    discipline_id: int,
-    auth_session: schemas.JWTAuthSchema = Depends(get_auth_token),
-    db_session: Session = Depends(get_db),
+    db_discipline: models.Card = Depends(discipline_ownership_checker("discipline_id")),
+    db_session: Session = Depends(deps.get_db),
 ) -> schemas.DisciplineSchema:
-    db_discipline = crud.discipline.get(db_session, discipline_id)
-    if not db_discipline:
-        raise HTTPException(status_code=400, detail="Discipline not found")
-    if db_discipline.user_id != auth_session.user_id:
-        raise HTTPException(
-            status_code=403,
-            detail="Not allowed to deleted a discipline that  you do not own",
-        )
     try:
-        return crud.discipline.delete(db_session, discipline_id)
+        return crud.discipline.delete(db_session, db_discipline.id)
     except IntegrityError as e:
         raise HTTPException(
             status_code=400,
             detail="Cannot delete the disciplines because it had related cards",
         ) from e
+
+
+@discipline_router.patch(
+    "/discipline/{discipline_id}/random-card/view", response_model=schemas.CardSchema
+)
+def get_random(
+    db_discipline: models.Discipline = Depends(discipline_ownership_checker("discipline_id")),
+    db_session: Session = Depends(deps.get_db),
+    auth_session: schemas.JWTAuthSchema = Depends(deps.get_auth_token),
+) -> schemas.CardSchema:
+    db_card = crud.card.get_random_by_priority(
+        db_session, auth_session.user_id, discipline_id=db_discipline.id
+    )
+    db_card = crud.card.update(
+        db_session,
+        db_card,
+        schemas.CardCommitSchema(last_viewed_at=datetime.now(timezone.utc)),
+    )
+    return db_card
