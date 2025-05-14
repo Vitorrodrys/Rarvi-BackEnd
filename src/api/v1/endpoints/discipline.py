@@ -56,7 +56,7 @@ def update_discipline(
     discipline: schemas.DisciplineUpdateSchema = Body(...),
 ) -> schemas.DisciplineSchema:
     try:
-        crud.discipline.update(db_session, db_obj=db_discipline, obj_in=discipline)
+        return crud.discipline.update(db_session, db_obj=db_discipline, obj_in=discipline)
     except IntegrityError as e:
         raise HTTPException(
             status_code=400, detail="The name of the discipline is already in using"
@@ -90,6 +90,11 @@ def get_random(
     db_card = crud.card.get_random_by_priority(
         db_session, auth_session.user_id, discipline_id=db_discipline.id
     )
+    if not db_card:
+        raise HTTPException(
+            status_code=404,
+            detail="No cards associated with discipline given"
+        )
     db_card = crud.card.update(
         db_session,
         db_card,
