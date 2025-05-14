@@ -1,4 +1,6 @@
 from datetime import datetime, timedelta, timezone
+from functools import reduce
+import random
 from typing import Optional
 
 from sqlalchemy.orm import Query, Session
@@ -80,3 +82,28 @@ class CRUDCard(
         if limit:
             stmt = stmt.limit(limit)
         return stmt.all()
+
+    def update_priority_weight(
+        self,
+        db_session: Session,
+        db_card: models.Card,
+        difficulty: schemas.CardDifficultyEnum,
+    ) -> models.Card:
+        if db_card.priority_weight == 0 and difficulty < 0:
+            return db_card
+        db_card.priority_weight += difficulty
+        db_session.add(db_card)
+        db_session.commit()
+        db_session.refresh(db_card)
+        return db_card
+
+    def get_random_by_priority(
+        self, db_session: Session, user_id: int, *, discipline_id: Optional[int]
+    ) -> models.Card:
+        stmt = db_session.query(models.Card.id, models.Card.priority_weight)
+        stmt = self.__basic_stmt(stmt, user_id, discipline_id=discipline_id)
+        card_weights = stmt.all()
+        weight_sum = sum(w[1] for w in card_weights)
+        weights = (w[1] / weight_sum for w in card_weights)
+        card_choiced = random.choices(card_weights, weights, k=1)[0]
+        return self.get(db_session, card_choiced[0])
