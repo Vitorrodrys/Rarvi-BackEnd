@@ -47,16 +47,10 @@ def create_card(
 
 @card_router.patch("/card/{card_id}", response_model=schemas.CardSchema)
 def update(
-    card_id: int,
+    db_card: models.Card = Depends(card_ownership_checker("card_id")),
     db_session: Session = Depends(deps.get_db),
-    auth_session: schemas.JWTAuthSchema = Depends(deps.get_auth_token),
     card: schemas.CardUpdateSchema = Body(...),
 ) -> schemas.CardSchema:
-    db_card = crud.card.get(db_session, card_id)
-    if not db_card:
-        raise HTTPException(status_code=404, detail="Discipline not found")
-    if db_card.discipline.user_id != auth_session.user_id:
-        raise HTTPException(status_code=403, detail="Unauthorized acess to discipline")
     card_commit = schemas.CardCommitSchema(**card.model_dump(exclude_unset=True))
     card_commit.last_viewed_at = datetime.now(timezone.utc)
     db_card = crud.card.update(db_session, db_card, card_commit)
@@ -65,11 +59,10 @@ def update(
 
 @card_router.delete("/card/{card_id}", response_model=schemas.CardSchema)
 def delete_card(
-    card_id: int,
-    _: models.Card = Depends(card_ownership_checker("card_id")),
+    db_card: models.Card = Depends(card_ownership_checker("card_id")),
     db_session: Session = Depends(deps.get_db),
 ) -> schemas.CardSchema:
-    return crud.card.delete(db_session, card_id)
+    return crud.card.delete(db_session, db_card.id)
 
 
 @card_router.get("/cards", response_model=list[schemas.SummarizedCardSchema])
