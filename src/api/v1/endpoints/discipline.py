@@ -51,17 +51,10 @@ def create_discipline(
     "/discipline/{discipline_id}", response_model=schemas.DisciplineSchema
 )
 def update_discipline(
-    discipline_id: int,
-    auth_session: schemas.JWTAuthSchema = Depends(deps.get_auth_token),
+    db_discipline: models.Discipline = Depends(discipline_ownership_checker("discipline_id")),
     db_session: Session = Depends(deps.get_db),
     discipline: schemas.DisciplineUpdateSchema = Body(...),
 ) -> schemas.DisciplineSchema:
-    db_discipline = crud.discipline.get(db_session, discipline_id)
-    if db_discipline.user_id != auth_session.user_id:
-        raise HTTPException(
-            status_code=403,
-            detail="Unauthorized acess to discipline",
-        )
     try:
         crud.discipline.update(db_session, db_obj=db_discipline, obj_in=discipline)
     except IntegrityError as e:
