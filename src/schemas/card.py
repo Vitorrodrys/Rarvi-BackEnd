@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 from enum import IntEnum
 from typing import Optional
 
@@ -15,14 +15,12 @@ class CardDifficultyEnum(IntEnum):
 
 
 class CardCreateSchema(BaseModel):
-    title: str = Field(min_length=5, max_length=100)
     question: str = Field(min_length=10, max_length=1024)
     answer: str = Field(min_length=10, max_length=1024)
     discipline_id: int
 
 
 class CardUpdateSchema(BaseModel):
-    title: Optional[str] = Field(None, min_length=5, max_length=100)
     question: Optional[str] = Field(None, min_length=10, max_length=1024)
     answer: Optional[str] = Field(None, min_length=10, max_length=1024)
     discipline_id: Optional[int] = None
@@ -30,16 +28,14 @@ class CardUpdateSchema(BaseModel):
 
 class CardCommitSchema(BaseModel):
     model_config = ConfigDict(from_attributes=True)
-    title: Optional[str] = None
     question: Optional[str] = None
     answer: Optional[str] = None
-    last_viewed_at: Optional[datetime] = None
+    last_viewed_at: datetime = Field(default_factory=datetime.now(timezone.utc))
     discipline_id: Optional[int] = None
 
 
 class CardSchema(BaseSchema):
     id: int
-    title: str
     question: str
     answer: str
     last_viewed_at: datetime
@@ -47,5 +43,5 @@ class CardSchema(BaseSchema):
 
 class SummarizedCardSchema(BaseSchema):
     id: int
-    title: str
+    question: str
     discipline_id: int

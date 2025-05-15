@@ -15,7 +15,6 @@ class Card(Base):
     __tablename__ = "cards"
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    title: Mapped[str] = mapped_column(String(100))
     question: Mapped[str] = mapped_column(String(1024))
     answer: Mapped[str] = mapped_column(String(1024))
     last_viewed_at: Mapped[datetime] = mapped_column(
