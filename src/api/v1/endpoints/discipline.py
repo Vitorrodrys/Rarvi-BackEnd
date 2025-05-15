@@ -43,7 +43,7 @@ def create_discipline(
         return db_discipline
     except IntegrityError as e:
         raise HTTPException(
-            status_code=400, detail="discipline with this name already exists"
+            status_code=409, detail="discipline with this name already exists"
         ) from e
 
 
@@ -59,7 +59,7 @@ def update_discipline(
         return crud.discipline.update(db_session, db_obj=db_discipline, obj_in=discipline)
     except IntegrityError as e:
         raise HTTPException(
-            status_code=400, detail="The name of the discipline is already in using"
+            status_code=409, detail="The name of the discipline is already in using"
         ) from e
 
 
@@ -74,7 +74,7 @@ def delete_discipline(
         return crud.discipline.delete(db_session, db_discipline.id)
     except IntegrityError as e:
         raise HTTPException(
-            status_code=400,
+            status_code=409,
             detail="Cannot delete the disciplines because it had related cards",
         ) from e
 
