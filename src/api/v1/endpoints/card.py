@@ -41,7 +41,6 @@ def create_card(
     if db_discipline.user_id != auth_session.user_id:
         raise HTTPException(status_code=403, detail="Unauthorized acess to discipline")
     card_commit = schemas.CardCommitSchema.model_validate(card)
-    card_commit.last_viewed_at = datetime.now(timezone.utc)
     return crud.card.create(db_session, card_commit)
 
 
@@ -52,7 +51,6 @@ def update(
     card: schemas.CardUpdateSchema = Body(...),
 ) -> schemas.CardSchema:
     card_commit = schemas.CardCommitSchema(**card.model_dump(exclude_unset=True))
-    card_commit.last_viewed_at = datetime.now(timezone.utc)
     db_card = crud.card.update(db_session, db_card, card_commit)
     return db_card
 
@@ -89,35 +87,15 @@ def get_cards(
         The list of cards found by query.
 
     """
-    if from_date and not to_date:
-        raise HTTPException(
-            status_code=400,
-            detail="You must specify an end date for the time interval.",
-        )
-    if not from_date and to_date:
-        raise HTTPException(
-            status_code=400,
-            detail="You must specify a start date for the time interval.",
-        )
-
-    if from_date and to_date:
-        return crud.card.get_cards_by_period(
-            db_session,
-            auth_session.user_id,
-            from_date,
-            to_date,
-            discipline_id=discipline_id,
-            limit=limit,
-            offset=skip,
-        )
-    return crud.card.get_cards(
+    return crud.card.get_cards_by_period(
         db_session,
         auth_session.user_id,
+        from_date,
+        to_date,
         discipline_id=discipline_id,
         limit=limit,
         offset=skip,
     )
-
 
 @card_router.get("/count")
 def count_cards(
