@@ -1,5 +1,5 @@
 #!/bin/bash
-set -eu pipefail
+set -euo pipefail
 
 
 
@@ -44,7 +44,7 @@ if [[ $firebase_key == invalid ]];then
   exit 1
 fi
 source $env_file
-HOST_FIREBASE_SERVICE_KEY=$firebase_key
+export HOST_FIREBASE_SERVICE_KEY=$firebase_key
 
 mkdir -p volume
 openssl rand -out volume/signature.key 32
