@@ -30,7 +30,7 @@ class CardCommitSchema(BaseModel):
     model_config = ConfigDict(from_attributes=True)
     question: Optional[str] = None
     answer: Optional[str] = None
-    last_viewed_at: datetime = Field(default_factory=datetime.now(timezone.utc))
+    last_viewed_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     discipline_id: Optional[int] = None
 
 

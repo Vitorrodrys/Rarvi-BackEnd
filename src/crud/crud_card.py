@@ -97,14 +97,14 @@ class CRUDCard(
         return db_card
 
     def get_random_by_priority(
-        self, db_session: Session, user_id: int, *, discipline_id: Optional[int]
+        self, db_session: Session, user_id: int, *, discipline_id: Optional[int] = None
     ) -> Optional[models.Card]:
         stmt = db_session.query(models.Card.id, models.Card.priority_weight)
         stmt = self.__basic_stmt(stmt, user_id, discipline_id=discipline_id)
         card_weights = stmt.all()
         if not card_weights:
             return None
-        weight_sum = sum(w[1] for w in card_weights)
-        weights = ((w[1] - weight_sum) / weight_sum for w in card_weights)
+        weight_sum = sum(w[1] + 1 for w in card_weights)
+        weights = ((weight_sum  -  w[1]) / weight_sum for w in card_weights)
         card_choiced = random.choices(card_weights, weights, k=1)[0]
         return self.get(db_session, card_choiced[0])

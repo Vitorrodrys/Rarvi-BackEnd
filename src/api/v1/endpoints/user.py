@@ -1,6 +1,6 @@
 import re
 
-from fastapi import APIRouter, Body, Depends, HTTPException, Request
+from fastapi import APIRouter, Body, Depends, Header, HTTPException, Request
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
@@ -114,3 +114,21 @@ def auth_user(
         jwt=JWTHandler.from_model_user(db_user, requested_from=request.client.host)
     )
     return jwt_handler.to_jwt()
+
+@user_router.patch("/notification-token")
+def update_notification_token(
+    token: str = Header(...),
+    auth_token: schemas.JWTAuthSchema = Depends(get_auth_token),
+    db_session: Session = Depends(get_db),
+):
+    db_token = crud.notification_token.get_by_token(db_session, token, auth_token.user_id)
+    if db_token:
+        return
+    crud.notification_token.create(
+        db_session,
+        schemas.NotificationTokenCommitSchema(
+            token=token,
+            user_id=auth_token.user_id
+        )
+    )
+    return

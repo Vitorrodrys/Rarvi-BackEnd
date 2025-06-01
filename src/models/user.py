@@ -8,7 +8,7 @@ from .base import Base
 
 if TYPE_CHECKING:
     from .discipline import Discipline
-
+    from .notification_token import NotificationToken
 
 class User(Base):
     __tablename__ = "users"
@@ -19,3 +19,5 @@ class User(Base):
     pass_checksum: Mapped[str] = mapped_column(String(512))
 
     disciplines: Mapped[list["Discipline"]] = relationship(back_populates="user")
+    notification_tokens: Mapped[list["NotificationToken"]] = relationship(back_populates="user")
+
