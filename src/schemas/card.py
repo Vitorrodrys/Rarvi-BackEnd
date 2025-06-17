@@ -15,14 +15,14 @@ class CardDifficultyEnum(IntEnum):
 
 
 class CardCreateSchema(BaseModel):
-    question: str = Field(min_length=10, max_length=1024)
-    answer: str = Field(min_length=10, max_length=1024)
+    question: str = Field(min_length=0, max_length=1024)
+    answer: str = Field(min_length=0, max_length=1024)
     discipline_id: int
 
 
 class CardUpdateSchema(BaseModel):
-    question: Optional[str] = Field(None, min_length=10, max_length=1024)
-    answer: Optional[str] = Field(None, min_length=10, max_length=1024)
+    question: Optional[str] = Field(None, min_length=0, max_length=1024)
+    answer: Optional[str] = Field(None, min_length=0, max_length=1024)
     discipline_id: Optional[int] = None
 
 
@@ -40,6 +40,7 @@ class CardSchema(BaseSchema):
     answer: str
     last_viewed_at: datetime
     discipline_id: int
+
 
 class SummarizedCardSchema(BaseSchema):
     id: int
