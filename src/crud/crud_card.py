@@ -19,11 +19,10 @@ class CRUDCard(
     def __basic_stmt(
         self, stmt: Query, user_id: int, *, discipline_id: Optional[int] = None
     ) -> Query:
-        stmt = stmt.join(models.Discipline).where(
-            models.Card.discipline_id == models.Discipline.id
-        )
+        stmt = stmt.join(models.Discipline)
         if discipline_id:
             stmt = stmt.filter(models.Card.discipline_id == discipline_id)
+        stmt = stmt.filter(models.Discipline.user_id == user_id)
         return stmt
 
     def get_cards(
@@ -66,13 +65,15 @@ class CRUDCard(
         self,
         db_session: Session,
         user_id: int,
-        from_time: datetime,
-        to_time: datetime,
         *,
+        from_time: Optional[datetime] = None,
+        to_time: Optional[datetime] = None,
         discipline_id: Optional[int] = None,
         limit: Optional[int] = None,
         offset: Optional[int] = None,
     ) -> list[models.Card]:
+        from_time = from_time or datetime(1970, 1, 1)
+        to_time = to_time or (datetime.now(timezone.utc) + timedelta(days=365 * 1000))
         stmt = db_session.query(models.Card)
         stmt = self.__basic_stmt(stmt, user_id, discipline_id=discipline_id)
         stmt = stmt.filter(models.Card.last_viewed_at.between(from_time, to_time))

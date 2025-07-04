@@ -90,8 +90,8 @@ def get_cards(
     return crud.card.get_cards_by_period(
         db_session,
         auth_session.user_id,
-        from_date,
-        to_date,
+        from_time=from_date,
+        to_time=to_date,
         discipline_id=discipline_id,
         limit=limit,
         offset=skip,
