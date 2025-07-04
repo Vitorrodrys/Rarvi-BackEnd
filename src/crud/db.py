@@ -20,7 +20,7 @@ def create_all(base_class: Type[DeclarativeBase]):
     inspector = inspect(_engine)
     existing_tables = set(inspector.get_table_names())
     model_tables = set(base_class.metadata.tables.keys())
-    if not existing_tables & model_tables:
+    if model_tables - existing_tables:
         # If there are no existing tables, create all tables
         logging.info("Creating all tables in the database.")
         base_class.metadata.create_all(bind=_engine)
