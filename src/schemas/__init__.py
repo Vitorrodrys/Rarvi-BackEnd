@@ -25,8 +25,6 @@ from .user import (
 
 __all__ = [
     "BaseSchema",
-    "BaseCreateSchema",
-    "BaseUpdateSchema",
     "CardCreateSchema",
     "CardCommitSchema",
     "CardDifficultyEnum",
