@@ -8,10 +8,10 @@ from .base import BaseSchema
 
 
 class CardDifficultyEnum(IntEnum):
-    AGAIN = -1
-    HARD = 0
-    MEDIUM = 1
-    EASY = 2
+    AGAIN = 2
+    HARD = 1
+    MEDIUM = 0
+    EASY = -1
 
 
 class CardCreateSchema(BaseModel):
