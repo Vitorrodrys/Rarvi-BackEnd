@@ -80,24 +80,26 @@ def delete_discipline(
 
 
 @discipline_router.patch(
-    "/discipline/{discipline_id}/random-card/view", response_model=schemas.CardSchema
+    "/discipline/{discipline_id}/random-cards/view", response_model=list[schemas.CardSchema]
 )
-def get_random(
+def get_randoms(
     db_discipline: models.Discipline = Depends(discipline_ownership_checker("discipline_id")),
     db_session: Session = Depends(deps.get_db),
     auth_session: schemas.JWTAuthSchema = Depends(deps.get_auth_token),
-) -> schemas.CardSchema:
-    db_card = crud.card.get_random_by_priority(
-        db_session, auth_session.user_id, discipline_id=db_discipline.id
+    quantity: int | None = 10
+) -> list[schemas.CardSchema]:
+    db_cards = crud.card.get_randoms_by_priority(
+        db_session, auth_session.user_id, discipline_id=db_discipline.id, quantity=quantity
     )
-    if not db_card:
+    if not db_cards:
         raise HTTPException(
             status_code=404,
             detail="No cards associated with discipline given"
         )
-    db_card = crud.card.update(
-        db_session,
-        db_card,
-        schemas.CardCommitSchema(last_viewed_at=datetime.now(timezone.utc)),
-    )
-    return db_card
+    return [
+        crud.card.update(
+            db_session,
+            db_card,
+            schemas.CardCommitSchema(last_viewed_at=datetime.now(timezone.utc)),
+        ) for db_card in db_cards
+    ]

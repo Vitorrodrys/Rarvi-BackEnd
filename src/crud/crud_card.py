@@ -1,5 +1,5 @@
 from datetime import datetime, timedelta, timezone
-import random
+import numpy as np
 from typing import Optional
 
 from sqlalchemy.orm import Query, Session
@@ -97,15 +97,20 @@ class CRUDCard(
         db_session.refresh(db_card)
         return db_card
 
-    def get_random_by_priority(
-        self, db_session: Session, user_id: int, *, discipline_id: Optional[int]
-    ) -> Optional[models.Card]:
+    def get_randoms_by_priority(
+        self, db_session: Session, user_id: int, quantity:int, *, discipline_id: Optional[int]
+    ) -> list[models.Card]:
         stmt = db_session.query(models.Card.id, models.Card.priority_weight)
         stmt = self.__basic_stmt(stmt, user_id, discipline_id=discipline_id)
-        card_weights = stmt.all()
-        if not card_weights:
-            return None
-        weight_sum = sum(w[1] for w in card_weights)
-        weights = ((w[1] - weight_sum) / weight_sum for w in card_weights)
-        card_choiced = random.choices(card_weights, weights, k=1)[0]
-        return self.get(db_session, card_choiced[0])
+        cards = stmt.all()
+        if not cards:
+            return []
+
+        ids, weights = zip(*cards)
+        total = sum((w+1 for w in weights))
+        probabilities = [(w+1) / total for w in weights]
+
+        # choice the Q cards from weighted probabilities
+        quantity = min(quantity, len(cards))
+        selected_cards = np.random.choice(ids, size=quantity, replace=False, p=probabilities)
+        return [self.get(db_session, card_id) for card_id in selected_cards]
