@@ -16,7 +16,7 @@ class Card(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True)
     question: Mapped[str] = mapped_column(String(1024))
-    answer: Mapped[str] = mapped_column(String(1024))
+    answer: Mapped[str] = mapped_column(String(65536))
     last_viewed_at: Mapped[datetime] = mapped_column(
         DateTime, default=lambda: datetime.now(timezone.utc)
     )
