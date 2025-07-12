@@ -13,6 +13,7 @@ from .discipline import (
     DisciplineCreateSchema,
     DisciplineUpdateSchema,
 )
+from .notification import NotificationTokenCommitSchema
 from .user import (
     JWTAuthSchema,
     UserAuthSchema,
@@ -35,6 +36,7 @@ __all__ = [
     "DisciplineCommitSchema",
     "DisciplineCreateSchema",
     "DisciplineUpdateSchema",
+    "NotificationTokenCommitSchema",
     "JWTAuthSchema",
     "UserAuthSchema",
     "UserCommitSchema",

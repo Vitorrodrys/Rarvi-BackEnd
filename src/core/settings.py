@@ -30,6 +30,8 @@ class Settings(BaseSettings):
     CHECKSUM_SALT: str
     SIGNATURE_KEY_PATH: pathlib.Path
     JWT_VALID_PERIOD: timedelta
+    FIREBASE_SERVICE_KEY: pathlib.Path
+    CARD_NOTIFICATION_INTERVAL: timedelta
 
 
 _settings = None

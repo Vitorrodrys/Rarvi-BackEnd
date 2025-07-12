@@ -5,6 +5,7 @@ from api import api_router
 from core import log, settings
 from crud.db import create_all
 from models import Base
+from notification_handler.worker import create_worker
 
 log.init_logging()
 create_all(Base)
@@ -25,3 +26,4 @@ app.add_middleware(
     allow_headers=["*"],
 )
 app.include_router(api_router, prefix=env_settings.VERSION_PREFIX)
+create_worker()

@@ -1,14 +1,16 @@
 #!/bin/bash
-set -eu pipefail
+set -euo pipefail
 
 
 
 project_name="rarvi"
 env_file="test.env"
+firebase_key=invalid
 
 usage(){
     cat <<EOF
-Usage: $0 [-p <project-name>] [-e <env-file>]"
+Usage: $0 -f <firebase-service-key> [-p <project-name>] [-e <env-file>]
+    -f the path to firebase key, which is used to authenticate with firebase and send card notifications
     -p The optional nome of the project. Default is 'rarvi'.
     -e The optional env file with the environment variables setup. Default is 'test.env' that
     points to env file in this current folder.
@@ -21,8 +23,10 @@ if [[ $1 == "-h" || $1 == "--help" ]]; then
     exit 0
 fi
 
-while getopts ":p:e:" opt; do
+while getopts ":f:p:e:" opt; do
   case $opt in
+    f) firebase_key="$OPTARG"
+    ;;
     p) project_name="$OPTARG"
     ;;
     e) env_file="$OPTARG"
@@ -34,7 +38,13 @@ while getopts ":p:e:" opt; do
   esac
 done
 
+if [[ $firebase_key == invalid ]];then
+  echo "Missing mandatory parameter -f"
+  usage
+  exit 1
+fi
 source $env_file
+export HOST_FIREBASE_SERVICE_KEY=$firebase_key
 
 mkdir -p volume
 openssl rand -out volume/signature.key 32

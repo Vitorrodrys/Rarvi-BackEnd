@@ -41,7 +41,6 @@ class CardSchema(BaseSchema):
     last_viewed_at: datetime
     discipline_id: int
 
-
 class SummarizedCardSchema(BaseSchema):
     id: int
     question: str

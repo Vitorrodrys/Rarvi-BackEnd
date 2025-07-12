@@ -1,9 +1,13 @@
+celery==5.5.2
+croniter==6.0.0 
 cryptography==44.0.2
 fastapi==0.115.12
+firebase-admin==6.8.0
 numpy==2.3.1
 pydantic==2.11.2
 pydantic[email]==2.11.2
 pydantic-settings==2.8.1
-PyMySQL==1.1.1
 sqlalchemy==2.0.40
+redis==6.1.0 
 uvicorn==0.34.0
+PyMySQL==1.1.1

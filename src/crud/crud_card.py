@@ -98,7 +98,7 @@ class CRUDCard(
         return db_card
 
     def get_randoms_by_priority(
-        self, db_session: Session, user_id: int, quantity:int, *, discipline_id: Optional[int]
+        self, db_session: Session, user_id: int, quantity:int, *, discipline_id: Optional[int] = None
     ) -> list[models.Card]:
         stmt = db_session.query(models.Card.id, models.Card.priority_weight)
         stmt = self.__basic_stmt(stmt, user_id, discipline_id=discipline_id)
