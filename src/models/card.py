@@ -2,6 +2,7 @@ from typing import TYPE_CHECKING
 from datetime import datetime, timezone
 
 from sqlalchemy import DateTime, ForeignKey, String
+from sqlalchemy import Text
 from sqlalchemy.orm import Mapped
 from sqlalchemy.orm import mapped_column, relationship
 
@@ -16,7 +17,7 @@ class Card(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True)
     question: Mapped[str] = mapped_column(String(1024))
-    answer: Mapped[str] = mapped_column(String(65536))
+    answer: Mapped[str] = mapped_column(Text)
     last_viewed_at: Mapped[datetime] = mapped_column(
         DateTime, default=lambda: datetime.now(timezone.utc)
     )
