@@ -15,10 +15,11 @@ config = settings.get()
 notify_handler = Notifier(config.FIREBASE_SERVICE_KEY)
 
 def _notify(db_session: Session, user: models.User):
-    random_card = crud.card.get_random_by_priority(db_session, user.id)
+    random_card = crud.card.get_randoms_by_priority(db_session, user.id, 1)
     if not random_card:
         logging.warning("no cards selected from user '%s', maybe he does not has cards?", user.name)
         return
+    random_card = random_card[0]
     title = f"Hello {user.name}, do you still remember of this concept?"
     body = random_card.question
     for notify_token in user.notification_tokens:
