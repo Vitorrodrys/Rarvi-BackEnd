@@ -1,9 +1,12 @@
 import models
 import schemas
 
-from . import db
 from .crud_base import CRUDBase
+from .crud_card import CRUDCard
+from .crud_disciplines import CRUDDisciplines
 from .crud_user import CRUDUser
 
 
-crud_user = CRUDUser()
+card = CRUDCard()
+discipline = CRUDDisciplines()
+user = CRUDUser()
