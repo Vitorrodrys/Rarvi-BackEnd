@@ -20,4 +20,3 @@ class User(Base):
 
     disciplines: Mapped[list["Discipline"]] = relationship(back_populates="user")
     notification_tokens: Mapped[list["NotificationToken"]] = relationship(back_populates="user")
-

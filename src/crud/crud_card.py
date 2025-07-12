@@ -1,5 +1,5 @@
 from datetime import datetime, timedelta, timezone
-import random
+import numpy as np
 from typing import Optional
 
 from sqlalchemy.orm import Query, Session
@@ -19,11 +19,10 @@ class CRUDCard(
     def __basic_stmt(
         self, stmt: Query, user_id: int, *, discipline_id: Optional[int] = None
     ) -> Query:
-        stmt = stmt.join(models.Discipline).where(
-            models.Card.discipline_id == models.Discipline.id
-        )
+        stmt = stmt.join(models.Discipline)
         if discipline_id:
             stmt = stmt.filter(models.Card.discipline_id == discipline_id)
+        stmt = stmt.filter(models.Discipline.user_id == user_id)
         return stmt
 
     def get_cards(
@@ -66,13 +65,15 @@ class CRUDCard(
         self,
         db_session: Session,
         user_id: int,
-        from_time: datetime,
-        to_time: datetime,
         *,
+        from_time: Optional[datetime] = None,
+        to_time: Optional[datetime] = None,
         discipline_id: Optional[int] = None,
         limit: Optional[int] = None,
         offset: Optional[int] = None,
     ) -> list[models.Card]:
+        from_time = from_time or datetime(1970, 1, 1)
+        to_time = to_time or (datetime.now(timezone.utc) + timedelta(days=365 * 1000))
         stmt = db_session.query(models.Card)
         stmt = self.__basic_stmt(stmt, user_id, discipline_id=discipline_id)
         stmt = stmt.filter(models.Card.last_viewed_at.between(from_time, to_time))
@@ -96,15 +97,20 @@ class CRUDCard(
         db_session.refresh(db_card)
         return db_card
 
-    def get_random_by_priority(
-        self, db_session: Session, user_id: int, *, discipline_id: Optional[int] = None
-    ) -> Optional[models.Card]:
+    def get_randoms_by_priority(
+        self, db_session: Session, user_id: int, quantity:int, *, discipline_id: Optional[int]
+    ) -> list[models.Card]:
         stmt = db_session.query(models.Card.id, models.Card.priority_weight)
         stmt = self.__basic_stmt(stmt, user_id, discipline_id=discipline_id)
-        card_weights = stmt.all()
-        if not card_weights:
-            return None
-        weight_sum = sum(w[1] + 1 for w in card_weights)
-        weights = ((weight_sum  -  w[1]) / weight_sum for w in card_weights)
-        card_choiced = random.choices(card_weights, weights, k=1)[0]
-        return self.get(db_session, card_choiced[0])
+        cards = stmt.all()
+        if not cards:
+            return []
+
+        ids, weights = zip(*cards)
+        total = sum((w+1 for w in weights))
+        probabilities = [(w+1) / total for w in weights]
+
+        # choice the Q cards from weighted probabilities
+        quantity = min(quantity, len(cards))
+        selected_cards = np.random.choice(ids, size=quantity, replace=False, p=probabilities)
+        return [self.get(db_session, card_id) for card_id in selected_cards]
