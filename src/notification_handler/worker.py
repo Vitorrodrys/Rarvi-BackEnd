@@ -20,7 +20,7 @@ def _notify(db_session: Session, user: models.User):
         logging.warning("no cards selected from user '%s', maybe he does not has cards?", user.name)
         return
     random_card = random_card[0]
-    title = f"Hello {user.name}, do you still remember of this concept?"
+    title = f"Olá {user.name}, você ainda se lembra deste conceito?"
     body = random_card.question
     for notify_token in user.notification_tokens:
         notify_handler.send_notification(notify_token.token, title, body)
